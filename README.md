@@ -22,6 +22,16 @@ Your final app should:
 - Display the plan clearly (and ideally explain the reasoning)
 - Include tests for the most important scheduling behaviors
 
+## Smarter Scheduling
+
+The scheduling engine goes beyond a simple to-do list with several algorithmic features:
+
+- **Priority-aware daily plan** — `generate_daily_plan` sorts tasks by scheduled time first, then breaks ties by priority (High → Medium → Low), so the most important tasks always surface at the right moment.
+- **Conflict detection** — `find_conflicts` uses an interval-overlap algorithm to identify any two tasks whose time windows collide, across pets or within the same pet.
+- **Recurring tasks** — Tasks marked `"daily"` or `"weekly"` automatically generate the next pending instance when completed via `complete_task`, keeping the schedule self-maintaining.
+- **Flexible filtering** — `filter_tasks` lets you slice the task list by pet name, status, or both combined in a single call.
+- **Overdue detection** — `is_overdue` compares each task's scheduled time against the current wall clock so stale pending tasks are easy to surface.
+
 ## Getting started
 
 ### Setup
