@@ -94,7 +94,7 @@ I would test an owner with no pets adding duplicate pets and the update task met
 
 - What part of this project are you most satisfied with?
 I most satisfied with the scheduler and task management. It correctly handles sorting filtering recurring tasks and conflict detection and the automated tests confirm that the logic works reliably.
-
+c
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
