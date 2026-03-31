@@ -51,3 +51,31 @@ pip install -r requirements.txt
 5. Add tests to verify key behaviors.
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
+
+### Testing PawPal+
+
+Run the full test suite from the project root:
+
+```bash
+python3 -m pytest tests/test_pawpal.py -v
+```
+
+The 30 tests cover:
+
+| Area | What is tested |
+|---|---|
+| `Task.mark_complete` | Status changes from Pending to Completed |
+| `Task.is_overdue` | No time → false; Completed → false; past time → true; future time → false |
+| `Task.next_occurrence` | Returns `None` with no recurrence or no time; advances by 1 day (daily) or 7 days (weekly) when the scheduled time has already passed |
+| `Task.next_task` | Returns a fresh Pending copy for recurring tasks; returns `None` for one-off tasks |
+| `Pet` | `add_task` / `remove_task` update the task list; removing a task not in the list does not raise |
+| `Schedule` sorting | Untimed tasks sort last; same-time tasks break ties by priority (High → Medium → Low); unknown priority sorts after Low |
+| `Schedule` filtering | `filter_by_pet` is case-insensitive and returns `[]` for unknown pets; `filter_by_status` excludes tasks with the wrong status; `filter_tasks` combines both filters; no-argument call returns all tasks |
+| Conflict detection | Overlapping intervals detected; adjacent (touching) intervals not flagged; untimed tasks ignored; conflicts detected across different pets |
+| `Schedule.complete_task` | Marks task done; non-recurring returns `None`; recurring attaches new Pending task to the correct pet |
+Confidence Level 4/5
+
+Core features like sorting, filtering, and conflict detection work reliably.
+Recurring tasks and completing tasks on the correct pet are tested.
+Time-sensitive logic is verified with mocked times.
+Minor gaps remain but they are low-risk.
