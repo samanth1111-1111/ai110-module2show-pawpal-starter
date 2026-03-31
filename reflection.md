@@ -75,12 +75,16 @@ I wrote out a few example tasks and stepped through the algorithm on paper to se
 **a. What you tested**
 
 - What behaviors did you test?
+I tested task status updates mark_complete overdue detection is_overdue and recurring task logic next_occurrence next_task. I also tested pet task management adding removing tasks schedule sorting including untimed tasks and priority tiebreakers filtering by pet and status conflict detection overlapping adjacent cross pet and untimed tasks and task completion behavior including recurring task creation.
 - Why were these tests important?
+These tests are important because they verify that all core features of the scheduler work correctly and handle edge cases. They ensure tasks are ordered properly conflicts are detected accurately recurring tasks behave as expected and filtering returns the correct results. This helps make the system reliable for users managing multiple pets and schedules.
 
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
+I am 4/5 confident that my scheduler works correctly. The tests cover all main features like sorting filtering conflict detection recurring tasks and task completion including important edge cases like overlapping times and untimed tasks.
 - What edge cases would you test next if you had more time?
+I would test an owner with no pets adding duplicate pets and the update task method. I would also test more time edge cases like recurring tasks scheduled later the same day and completing the same task multiple times to ensure no unexpected behavior.
 
 ---
 
@@ -89,11 +93,14 @@ I wrote out a few example tasks and stepped through the algorithm on paper to se
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+Im most satisfied with the scheduler and task management. It correctly handles sorting filtering recurring tasks and conflict detection and the automated tests confirm that the logic works reliably.
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+f I had another iteration I would improve the ui ux to make the task schedules and conflicts easier for users to see. I would also add more edge case tests.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+I learned that a smart backend is not enough user experience and careful testing are important ai assisted tools can speed up development and testing thoughtful design decisions are still essential for building a reliable user friendly system.

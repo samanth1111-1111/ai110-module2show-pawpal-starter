@@ -12,6 +12,8 @@ class Task:
     status: str = "Pending"            # "Pending" or "Completed"
     recurrence: Optional[str] = None   # None, "daily", or "weekly"
 
+    __hash__ = object.__hash__
+
     def mark_complete(self):
         """Mark this task as Completed."""
         self.status = "Completed"

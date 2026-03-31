@@ -66,8 +66,8 @@ if submitted_pet:
 
 if owner.pets:
     st.markdown("**Your Pets:**")
-    for p in owner.pets:
-        st.write(f"- {p.name} ({p.breed}, age {p.age})")
+    pet_rows = [{"🐾 Name": p.name, "Breed": p.breed, "Age": p.age, "Medical Info": p.medical_info} for p in owner.pets]
+    st.dataframe(pet_rows, use_container_width=True, hide_index=True)
 else:
     st.info("No pets yet. Add one above.")
 
@@ -85,45 +85,123 @@ if owner.pets:
             duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
         with col2:
             priority = st.selectbox("Priority", ["High", "Medium", "Low"])
+        with col3:
+            recurrence = st.selectbox("Recurrence", ["None", "daily", "weekly"])
         submitted_task = st.form_submit_button("Add Task")
 
     if submitted_task:
         if task_title.strip():
-            new_task = Task(title=task_title.strip(), duration=int(duration),
-                            priority=priority, time=task_time.strip() or None)
+            new_task = Task(
+                title=task_title.strip(),
+                duration=int(duration),
+                priority=priority,
+                time=task_time.strip() or None,
+                recurrence=None if recurrence == "None" else recurrence,
+            )
             pet_options[selected_pet].add_task(new_task)  # Pet.add_task() appends to pet.tasks
             st.success(f"Task '{new_task.title}' added to {selected_pet}!")
         else:
             st.error("Please enter a task title.")
 
-    for p in owner.pets:
-        if p.tasks:
-            st.markdown(f"**{p.name}'s tasks:**")
-            st.table([{"title": t.title, "time": t.time or "anytime",
-                       "priority": t.priority, "duration": t.duration,
-                       "status": t.status} for t in p.tasks])
+    # --- Filter controls using Schedule.filter_tasks() and Schedule.sort_by_time() ---
+    schedule = Schedule(owner=owner)
+
+    st.markdown("#### Filter Tasks")
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        filter_pet = st.selectbox(
+            "Filter by pet", ["All"] + [p.name for p in owner.pets], key="filter_pet"
+        )
+    with col_f2:
+        filter_status = st.selectbox(
+            "Filter by status", ["All", "Pending", "Completed"], key="filter_status"
+        )
+
+    filtered_set = set(schedule.filter_tasks(
+        pet_name=None if filter_pet == "All" else filter_pet,
+        status=None if filter_status == "All" else filter_status,
+    ))
+
+    sorted_tasks = [t for t in schedule.sort_by_time() if t in filtered_set]
+
+    if sorted_tasks:
+        priority_icon = {"High": "🔴", "Medium": "🟡", "Low": "🟢"}
+        task_rows = [{
+            "Task": t.title,
+            "⏰ Time": t.time or "anytime",
+            "Priority": f"{priority_icon.get(t.priority, '')} {t.priority}",
+            "Duration (min)": t.duration,
+            "Recurrence": t.recurrence or "—",
+            "Status": t.status,
+            "Overdue": "⚠️ Yes" if t.is_overdue() else "✅ No",
+        } for t in sorted_tasks]
+        st.dataframe(task_rows, use_container_width=True, hide_index=True)
+
+        overdue_tasks = [t for t in sorted_tasks if t.is_overdue()]
+        if overdue_tasks:
+            st.warning(f"⚠️ {len(overdue_tasks)} task(s) are overdue: {', '.join(t.title for t in overdue_tasks)}")
+        else:
+            st.success("All tasks are on schedule.")
+    else:
+        st.info("No tasks match the current filter.")
+
+    # --- Mark task complete using Schedule.complete_task() ---
+    all_pending = [t for t in owner.get_all_tasks() if t.status == "Pending"]
+    if all_pending:
+        st.markdown("#### Mark a Task Complete")
+        task_labels = {f"{t.title} ({t.time or 'anytime'})": t for t in all_pending}
+        chosen_label = st.selectbox("Select task to complete", list(task_labels.keys()), key="complete_select")
+        if st.button("Mark Complete"):
+            follow_up = schedule.complete_task(task_labels[chosen_label])
+            st.success(f"'{task_labels[chosen_label].title}' marked complete.")
+            if follow_up:
+                st.info(f"Next recurring occurrence scheduled at: {follow_up.time}")
+            st.rerun()
+
 else:
     st.info("No tasks yet. Add one above.")
 
 st.divider()
 
 st.subheader("Build Schedule")
-st.caption("This button should call your scheduling logic once you implement it.")
+st.caption("Generates a sorted daily plan and checks for scheduling conflicts.")
 
 if st.button("Generate schedule"):
     schedule = Schedule(owner=owner)
-    schedule.generate_daily_plan()       # Schedule.generate_daily_plan() sorts tasks by priority
+    schedule.generate_daily_plan()       # Schedule.generate_daily_plan() sorts tasks by time then priority
     plan = schedule.view_plan()          # Schedule.view_plan() returns the ordered list
 
     if plan:
         st.markdown(f"**Today's Schedule for {owner.name}**")
+        priority_icon = {"High": "🔴", "Medium": "🟡", "Low": "🟢"}
         for i, task in enumerate(plan, 1):
             time_label = task.time if task.time else "anytime"
-            st.markdown(
-                f"{i}. **{task.title}** — {task.priority} priority | "
-                f"{task.duration} min | ⏰ {time_label} | `{task.status}`"
+            label = (
+                f"**{i}. {task.title}** &nbsp;|&nbsp; "
+                f"{priority_icon.get(task.priority, '')} {task.priority} priority &nbsp;|&nbsp; "
+                f"⏰ {time_label} &nbsp;|&nbsp; {task.duration} min &nbsp;|&nbsp; `{task.status}`"
             )
+            if task.is_overdue():
+                st.error(f"⚠️ {label}  ← *overdue*", icon="⚠️")
+            elif task.status == "Completed":
+                st.success(label, icon="✅")
+            else:
+                st.info(label, icon="📋")
         st.caption(schedule.explain_plan())
+
+        # --- Conflict detection using Schedule.find_conflicts() ---
+        conflicts = schedule.find_conflicts()
+        st.divider()
+        if conflicts:
+            st.warning(f"⚠️ {len(conflicts)} scheduling conflict(s) detected:")
+            for a, b in conflicts:
+                st.error(
+                    f"**{a.title}** ({a.time}, {a.duration} min) overlaps with "
+                    f"**{b.title}** ({b.time}, {b.duration} min)",
+                    icon="🚫",
+                )
+        else:
+            st.success("✅ No scheduling conflicts found.", icon="✅")
     else:
         st.warning("No tasks found. Add pets and tasks first.")
         st.markdown(

@@ -2,6 +2,17 @@
 
 You are building **PawPal+**, a Streamlit app that helps a pet owner plan care tasks for their pet.
 
+## Features
+
+| Feature | Algorithm / Method | How it works |
+|---|---|---|
+| **Sorting by time + priority** | `generate_daily_plan` | Two-key sort: tasks are ordered by `HH:MM` time first (untimed tasks use sentinel `"99:99"` to sink to the bottom), then by priority rank (High=1, Medium=2, Low=3) as a tiebreaker. |
+| **Conflict warnings** | `find_conflicts` | Converts each timed task's start time to minutes-since-midnight, computes `end = start + duration`, then checks every unique pair with the interval-overlap condition `a_start < b_end and b_start < a_end`. Adjacent tasks that merely touch are not flagged. |
+| **Daily / weekly recurrence** | `next_occurrence`, `next_task`, `complete_task` | When a task is completed, `complete_task` calls `next_task` which calls `next_occurrence`. `next_occurrence` starts from today's `HH:MM` candidate; if that moment has already passed it advances by 1 day (`"daily"`) or 7 days (`"weekly"`). The new pending task is attached to the same pet automatically. |
+| **Overdue detection** | `is_overdue` | Compares the task's `HH:MM` time against `datetime.now()` for today. Returns `True` only when the task is `"Pending"` and the current moment is strictly after the scheduled time. |
+| **Flexible filtering** | `filter_tasks` | Accepts an optional `pet_name` (case-insensitive) and/or `status` argument. Filters are applied in sequence; passing neither returns all tasks across all pets. |
+| **Task editing** | `update_task` | Updates only the fields explicitly passed (title, duration, priority, time), leaving unspecified fields unchanged. |
+
 ## Scenario
 
 A busy pet owner needs help staying consistent with pet care. They want an assistant that can:
