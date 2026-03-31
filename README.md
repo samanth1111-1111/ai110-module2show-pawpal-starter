@@ -88,5 +88,8 @@ Confidence Level 4/5
 
 Core features like sorting, filtering, and conflict detection work reliably.
 Recurring tasks and completing tasks on the correct pet are tested.
-Time-sensitive logic is verified with mocked times.
+Time-sensitive logic is verified with mocked tim
 Minor gaps remain but they are low-risk.
+Demo
+<img width="798" height="431" alt="Screenshot 2026-03-30 at 11 57 55 PM" src="https://github.com/user-attachments/assets/a679a2ae-624e-4d1f-8f21-bf34dbb00589" />
+
