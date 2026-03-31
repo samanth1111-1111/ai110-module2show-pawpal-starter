@@ -1,0 +1,57 @@
+classDiagram
+    class Owner {
+        +String name
+        +String contact_info
+        +List~Pet~ pets
+        +add_pet(pet)
+        +remove_pet(pet)
+        +view_all_pets()
+        +get_all_tasks() List~Task~
+    }
+
+    class Pet {
+        +String name
+        +int age
+        +String breed
+        +String medical_info
+        +List~Task~ tasks
+        +add_task(task)
+        +remove_task(task)
+        +view_tasks()
+        +update_info(new_info)
+    }
+
+    class Task {
+        +String title
+        +int duration
+        +String priority
+        +Optional~String~ time
+        +String status
+        +Optional~String~ recurrence
+        +mark_complete()
+        +update_task(title, duration, priority, time)
+        +is_overdue() bool
+        +next_task() Task
+        +next_occurrence() datetime
+    }
+
+    class Schedule {
+        +Owner owner
+        +List~Task~ tasks
+        +List~Task~ daily_plan
+        +generate_daily_plan()
+        +view_plan()
+        +explain_plan()
+        +sort_by_time() List~Task~
+        +filter_by_pet(pet_name) List~Task~
+        +filter_by_status(status) List~Task~
+        +filter_tasks(pet_name, status) List~Task~
+        +complete_task(task) Task
+        +find_conflicts() List~Tuple~
+    }
+
+    Owner "1" --> "0..*" Pet : owns
+    Pet "1" --> "0..*" Task : has
+    Schedule "1" --> "1" Owner : belongs to
+    Schedule "1" ..> "0..*" Task : uses
+    Task --> Task : creates on recurrence
