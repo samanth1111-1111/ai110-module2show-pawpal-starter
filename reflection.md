@@ -93,7 +93,7 @@ I would test an owner with no pets adding duplicate pets and the update task met
 **a. What went well**
 
 - What part of this project are you most satisfied with?
-Im most satisfied with the scheduler and task management. It correctly handles sorting filtering recurring tasks and conflict detection and the automated tests confirm that the logic works reliably.
+I most satisfied with the scheduler and task management. It correctly handles sorting filtering recurring tasks and conflict detection and the automated tests confirm that the logic works reliably.
 
 **b. What you would improve**
 
