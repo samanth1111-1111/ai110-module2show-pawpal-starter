@@ -63,7 +63,7 @@ pip install -r requirements.txt
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
 
-### Testing PawPal+
+### Testing PawPal +
 
 Run the full test suite from the project root:
 
