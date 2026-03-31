@@ -70,7 +70,7 @@ Run the full test suite from the project root:
 ```bash
 python3 -m pytest tests/test_pawpal.py -v
 ```
-c
+
 The 30 tests cover:
 
 | Area | What is tested |
